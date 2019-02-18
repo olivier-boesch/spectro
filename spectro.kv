@@ -1,0 +1,335 @@
+#:import Led led.Led
+#:import Graph graph.Graph
+BoxLayout:
+  id: mainwnd
+  orientation: 'vertical'
+  #menu
+  # TODO : menu bar
+  #Main space
+  BoxLayout:
+    id: mainlayout
+    orientation: 'horizontal'
+    padding: 10
+    spacing: 5
+    BoxLayout:
+      orientation: 'vertical'
+      spacing: 10
+      size_hint_x: None
+      width: 170
+      BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: None
+        height: 30
+        BoxLayout:
+          orientation: 'vertical'
+          size_hint_x: None
+          width: 15
+          spacing: 2
+          Led:
+            id: led_in
+            source: 'shapes/contour_squarerounded_I.png'
+            auto_off: True
+            auto_off_delay: 0.1
+          Led:
+            id: led_out
+            source: 'shapes/contour_squarerounded_O.png'
+            auto_off: True
+            auto_off_delay: 0.1
+        Label:
+          id: infobox_lbl
+          text: "D\u00e9connect\u00e9"
+          halign: 'center'
+      #toolbox
+      Accordion:
+        size_hint_x: None
+        width: 150
+        id: buttonAccordion
+        orientation: 'vertical'
+        AccordionItem:
+          title: "Spectrom\u00e8tre"
+          collapse: False
+          BoxLayout:
+            orientation: 'vertical'
+            padding: 10
+            spacing: 10
+            Spinner:
+              id: ports_list
+              size_hint_y: None
+              height: 30
+              text: u'Pas de port S\u00e9rie'
+              on_text: app.on_ports_list_text(self.text)
+            Button:
+              id: connect_btn
+              size_hint_y: None
+              height: 30
+              text: 'Connecter'
+              on_press: app.on_connect_btn_press()
+            Button:
+              id: autotest_btn
+              size_hint_y: None
+              height: 30
+              text: 'Autotest'
+              disabled: True
+              on_press: app.on_autotest_btn_press()
+            Button:
+              id: hardware_infos_btn
+              size_hint_y: None
+              height: 30
+              text: 'Infos Mat\u00e9riel'
+              disabled: True
+              on_press: app.on_hardware_infos_btn_press()
+            Label:
+        AccordionItem:
+          title: "Spectre"
+          on_collapse: app.load_display_spectrum(self.collapse)
+          BoxLayout:
+            orientation: 'vertical'
+            padding: 10
+            spacing: 10
+            Label:
+              id: wavelength_spectrum_Lbl
+              size_hint_y: None
+              height: 20
+              text: '--- - --- nm'
+            Button:
+              id: wavelength_spectrum_btn
+              size_hint_y: None
+              height: 30
+              text: 'Longueur d\'onde'
+              disabled: True
+              on_press: app.on_wavelength_spectrum_btn_press()
+            Button:
+              id: blank_spectrum_btn
+              size_hint_y: None
+              height: 30
+              text: 'Blanc'
+              disabled: True
+              on_press: app.on_blank_spectrum_btn_press()
+            Button:
+              id: measure_spectrum_btn
+              size_hint_y: None
+              height: 30
+              text: 'Mesure'
+              disabled: True
+              on_press: app.on_measure_spectrum_btn_press()
+            Label:
+        AccordionItem:
+          title: "Absorbance"
+          on_collapse: app.load_display_abs(self.collapse)
+          BoxLayout:
+            orientation: 'vertical'
+            padding: 10
+            spacing: 10
+            Label:
+              id: wavelength_abs_lbl
+              size_hint_y: None
+              height: 20
+              text: '--- nm'
+            Button:
+              id: wavelength_abs_btn
+              size_hint_y: None
+              height: 30
+              text: 'Longueur d\'onde'
+              disabled: True
+              on_press: app.on_wavelength_abs_btn_press()
+            Button:
+              id: blank_abs_btn
+              size_hint_y: None
+              height: 30
+              text: 'Blanc'
+              disabled: True
+              on_press: app.on_blank_abs_btn_press()
+            Button:
+              id: measure_abs_btn
+              size_hint_y: None
+              height: 30
+              text: 'Mesure'
+              disabled: True
+              on_press: app.on_measure_abs_btn_press()
+            Label:
+      Button:
+        id: about_btn
+        size_hint_x: None
+        width: 150
+        size_hint_y: None
+        height: 30
+        text: '\u00c0 propos...'
+        on_press: app.on_about_btn_press()
+      Button:
+        id: quit_btn
+        size_hint_x: None
+        width: 150
+        size_hint_y: None
+        height: 30
+        text: 'Quitter Spectro'
+        on_press: app.on_quit_btn_press()
+
+<BoxSpectrum@BoxLayout>
+  id: box_spectrum
+  orientation: 'vertical'
+  Label:
+    id: boxspectrum_title_lbl
+    text: 'Mesure de Spectre'
+    size_hint_y: None
+    height: 30
+  Graph:
+    id: graph_widget
+    xlabel: 'longueur d\'onde (nm)'
+    ylabel: 'Absorbance'
+    x_ticks_minor: 5
+    x_ticks_major: 50
+    y_ticks_minor: 8
+    y_ticks_major: 0.2
+    y_grid_label: True
+    x_grid_label: True
+    y_grid: True
+    x_grid: True
+    ymin: 0
+    ymax: 1
+    xmin: 330
+    xmax: 900
+  BoxLayout:
+    size_hint_y: None
+    height: 30
+    Spinner:
+      size_hint_y: None
+      height: 30
+      id: spectrum_export_spinner
+      text: 'Exporter'
+      values: ['Exporter en image png','Exporter les donn\u00e9es']
+      opacity: 0.0
+      disabled: True
+
+<BoxAbs@BoxLayout>
+  orientation: 'vertical'
+  Label:
+    id: boxabs_title_lbl
+    size_hint_y: None
+    height: 30
+    text: 'Mesure d\'absorbance'
+  TextInput:
+    id: abs_data_ti
+    size_hint_y: 0.9
+    readonly: True
+    multiline: True
+    text: ''
+  Spinner:
+    id: abs_export_spinner
+    size_hint_y: None
+    height: 30
+    text: 'Exporter les donn\u00e9es'
+    values: ['Exporter les donn\u00e9es dans un fichier','Exporter les donn\u00e9es dans le presse papier']
+    opacity:0.0
+    disabled: True
+
+
+<PopupWavelengthSpectrum@Popup>
+  size_hint: 0.8,None
+  size: 800,300
+  title: u'S\u00e9lection de la plage de longueur d\'onde'
+  auto_dismiss: False
+  on_open: root.when_opened()
+  BoxLayout:
+    orientation: 'vertical'
+    Label:
+      text: 'longueur d\'onde de d\u00e9part: %d nm'%(wlstart_sldr.value,)
+    Slider:
+      id: wlstart_sldr
+      orientation: 'horizontal'
+      on_value: root.value_changed('start')
+    Label:
+      text: 'longueur d\'onde de fin: %  d nm'%(wlend_sldr.value,)
+    Slider:
+      id: wlend_sldr
+      orientation: 'horizontal'
+      on_value: root.value_changed('end')
+    BoxLayout:
+      orientation: 'horizontal'
+      Button:
+        size_hint_y: None
+        height: 30
+        text: u'Plage Compl\u00e8te'
+        on_press: root.on_reset()
+      Button:
+        size_hint_y: None
+        height: 30
+        text: 'Annuler'
+        on_press: root.on_cancel()
+      Button:
+        size_hint_y: None
+        height: 30
+        text: 'Valider'
+        on_press: root.on_ok()
+
+<PopupWavelengthAbs@Popup>
+  size_hint: 0.8,None
+  size: 600,200
+  title: u'S\u00e9lection de la longueur d\'onde'
+  auto_dismiss: False
+  on_open: root.when_opened()
+  BoxLayout:
+    orientation: 'vertical'
+    Label:
+      text: '%d nm'%(wl_sldr.value,)
+    Slider:
+      id: wl_sldr
+      orientation: 'horizontal'
+    BoxLayout:
+      orientation: 'horizontal'
+      Button:
+        size_hint_y: None
+        height: 30
+        text: 'Annuler'
+        on_press: root.on_cancel()
+      Button:
+        size_hint_y: None
+        height: 30
+        text: 'Valider'
+        on_press: root.on_ok()
+
+<PopupOperation@Popup>
+  size_hint: None,None
+  size: 400,100
+  pos_hint: {'top': 0.95, 'right':0.98}
+  auto_dismiss: False
+  on_open: root.when_opened()
+  BoxLayout:
+    orientation: 'vertical'
+    Label:
+      id: message_operation_lbl
+      
+    
+<PopupProgress@Popup>
+  size_hint: None,None
+  size: 400,150
+  pos_hint: {'top': 0.95, 'right':0.98}
+  auto_dismiss: False
+  on_open: root.when_opened()
+  BoxLayout:
+    orientation: 'vertical'
+    Label:
+      id: message_progress_lbl
+    ProgressBar:
+      id: progress_progress_pb
+      value: 0
+
+<PopupMessage@Popup>
+  size_hint: None,None
+  size: 400,130
+  pos_hint: {'top': 0.95, 'right':0.98}
+  auto_dismiss: True
+  on_open: root.when_opened()
+  BoxLayout:
+    orientation: 'vertical'
+    Label:
+      id: message_content_lbl
+
+<AboutPopup@Popup>
+  size_hint: None,None
+  size: 400,200
+  auto_dismiss: True
+  on_open: root.when_opened()
+  title: 'Spectro : Commande de spectrom\u00e8tre SECOMAM S250 et Prim'
+  Label:
+    id: about_lbl
+    text: 'Olivier Boesch \u00a9 2019\nutilise python et kivy,\nainsi que pyserial et kivy.garden.graph'
