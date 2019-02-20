@@ -1,19 +1,20 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # #########################################################################
-# Spectro v0.8
+# Spectro v0.9
 #   Olivier Boesch (c) 2019
 #   Secomam s250 and Prim Spectrometers software
 #   Licence: MIT
 # #########################################################################
 
-__version__ = '0.8'
-
+__version__ = '0.9'
 from kivy.config import Config
 Config.set('kivy', 'desktop', 1)
 # Config.set('graphics', 'window_state', 'maximized')
 # Config.set('graphics','fullscreen','auto')
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
+import kivy
+kivy.require('1.10.1')
 from kivy.app import App
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
@@ -21,6 +22,24 @@ from kivy.clock import Clock
 from graph import SmoothLinePlot
 import s250Prim_async
 from serial.tools import list_ports
+from normalize_graph import get_bounds_and_ticks
+
+# print_graph_theme = {'graph_area': {'label_options': {
+                                        # 'color': rgb('000000'),  # color of tick labels and titles
+                                        # 'bold': True},
+                                    # 'background_color': rgb('ffffff'),  # back ground color of canvas
+                                    # 'tick_color': rgb('000000'),  # ticks and grid
+                                    # 'border_color': rgb('000000')},  # border drawn around each graph
+                    # 'plot_color': rgb('000000')}
+                    
+                    
+# display_graph_theme = {'graph_area': {'label_options': {
+                                        # 'color': rgb('ffffff'),  # color of tick labels and titles
+                                        # 'bold': True},
+                                    # 'background_color': rgb('000000'),  # back ground color of canvas
+                                    # 'tick_color': rgb('ffffff'),  # ticks and grid
+                                    # 'border_color': rgb('ffffff')},  # border drawn around each graph
+                    # 'plot_color': rgb('ffffff')}
 
 
 class PopupWavelengthSpectrum(Popup):
@@ -292,7 +311,7 @@ class SpectroApp(App):
             self.data_widget = BoxSpectrum()
             self.root.ids['mainlayout'].add_widget(self.data_widget)
             self.wl_min = self.spectro.waveLengthLimits['start']
-            self.wl_max = self.spectro.waveLengthLimits['end']
+            self.wl_max = self.spectro.waveLengthLimits['end']        
 
     def load_display_abs(self,collapse):
         if collapse:
@@ -306,6 +325,16 @@ class SpectroApp(App):
             self.data_widget = BoxAbs()
             self.root.ids['mainlayout'].add_widget(self.data_widget)
             self.wl_abs = self.spectro.waveLengthLimits['start']
+            
+    def save_spectrum(self, txt):
+        # export as image
+        if txt == self.root.ids['spectrum_export_spinner'].values[0]:
+            pass
+        # export data only
+        elif txt == self.root.ids['spectrum_export_spinner'].values[1]:
+            pass
+        self.root.ids['spectrum_export_spinner'].text = 'Exporter'
+        
 
     def on_connect_btn_press(self):
         # if we are already connected then stop the spectro, disconnect serial port and reflact on ui
@@ -441,10 +470,23 @@ class SpectroApp(App):
         data, i, N = ans
         self.data_points.points.append(data)
         self.current_popup.update("Spectre", "Mesure du spectre (%d/%d points)" % (i, N), float(i) / float(N) * 100.0)
+        # raw min and max to keep data in the window
         self.data_widget.ids['graph_widget'].ymax = max( self.data_widget.ids['graph_widget'].ymax, data[1])
+        self.data_widget.ids['graph_widget'].ymin = min( self.data_widget.ids['graph_widget'].ymin, data[1])
         if i < N:
             self.get_spectrum_point()
         else:
+            #calcul des graduations
+            ymin, ymax, major_tick, minor_tick = get_bounds_and_ticks(self.data_widget.ids['graph_widget'].ymin,self.data_widget.ids['graph_widget'].ymax,10)
+            self.data_widget.ids['graph_widget'].ymin = ymin
+            self.data_widget.ids['graph_widget'].ymax = ymax
+            self.data_widget.ids['graph_widget'].y_ticks_major = major_tick
+            self.data_widget.ids['graph_widget'].y_ticks_minor = minor_tick
+            xmin, xmax, major_tick, minor_tick = get_bounds_and_ticks(self.data_widget.ids['graph_widget'].xmin,self.data_widget.ids['graph_widget'].xmax,10)
+            self.data_widget.ids['graph_widget'].xmin = xmin
+            self.data_widget.ids['graph_widget'].xmax = xmax
+            self.data_widget.ids['graph_widget'].x_ticks_major = major_tick
+            self.data_widget.ids['graph_widget'].x_ticks_minor = minor_tick
             self.current_popup.update("Spectre", "Mesure du spectre (%d/%d points)" % (N, N), 100.0)
             self.current_popup.close_after()
 

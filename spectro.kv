@@ -172,20 +172,24 @@ BoxLayout:
     text: 'Mesure de Spectre'
     size_hint_y: None
     height: 30
+  Label:
+    id: boxspectrum_coordinates_lbl
+    size_hint_y: None
+    height: 30
   Graph:
     id: graph_widget
     xlabel: 'longueur d\'onde (nm)'
     ylabel: 'Absorbance'
     x_ticks_minor: 5
     x_ticks_major: 50
-    y_ticks_minor: 8
+    y_ticks_minor: 4
     y_ticks_major: 0.2
     y_grid_label: True
     x_grid_label: True
     y_grid: True
     x_grid: True
     ymin: 0
-    ymax: 1
+    ymax: 2
     xmin: 330
     xmax: 900
   BoxLayout:
@@ -199,6 +203,7 @@ BoxLayout:
       values: ['Exporter en image png','Exporter les donn\u00e9es']
       opacity: 0.0
       disabled: True
+      on_text: app.save_spectrum(self.text)
 
 <BoxAbs@BoxLayout>
   orientation: 'vertical'
@@ -213,15 +218,6 @@ BoxLayout:
     readonly: True
     multiline: True
     text: ''
-  Spinner:
-    id: abs_export_spinner
-    size_hint_y: None
-    height: 30
-    text: 'Exporter les donn\u00e9es'
-    values: ['Exporter les donn\u00e9es dans un fichier','Exporter les donn\u00e9es dans le presse papier']
-    opacity:0.0
-    disabled: True
-
 
 <PopupWavelengthSpectrum@Popup>
   size_hint: 0.8,None
@@ -333,3 +329,27 @@ BoxLayout:
   Label:
     id: about_lbl
     text: 'Olivier Boesch \u00a9 2019\nutilise python et kivy,\nainsi que pyserial et kivy.garden.graph'
+    
+# <SaveDialog>:
+#   text_input: text_input
+#   BoxLayout:
+#     size: root.size
+#     pos: root.pos
+#     orientation: "vertical"
+#     FileChooserListView:
+#       id: filechooser
+#       on_selection: text_input.text = self.selection and self.selection[0] or ''
+#     TextInput:
+#       id: text_input
+#       size_hint_y: None
+#       height: 30
+#       multiline: False
+#     BoxLayout:
+#       size_hint_y: None
+#       height: 30
+#         Button:
+#           text: "Cancel"
+#           on_release: root.cancel()
+#       Button:
+#         text: "Save"
+#         on_release: root.save(filechooser.path, text_input.text) 
