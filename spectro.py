@@ -8,6 +8,10 @@
 # #########################################################################
 
 __version__ = '0.9'
+#dont write on console (file log only)
+import os
+os.environ["KIVY_NO_CONSOLELOG"] = "1"
+# kivy import
 from kivy.config import Config
 Config.set('kivy', 'desktop', 1)
 # Config.set('graphics', 'window_state', 'maximized')
@@ -22,7 +26,7 @@ from kivy.clock import Clock
 from graph import SmoothLinePlot
 import s250Prim_async
 from serial.tools import list_ports
-from normalize_graph import get_bounds_and_ticks
+from utilities import get_bounds_and_ticks
 
 # print_graph_theme = {'graph_area': {'label_options': {
                                         # 'color': rgb('000000'),  # color of tick labels and titles
