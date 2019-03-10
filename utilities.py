@@ -1,5 +1,5 @@
 from decimal import Decimal
-from math import pow
+from math import pow, isclose
 
 def step_data(rawval, step):
     val = step * (rawval // float(step))
@@ -37,7 +37,10 @@ def get_bounds_and_ticks(minval, maxval, nticks):
         suggested_minor_tick = 4
     # calculate good (rounded) min and max
     goodmin = tick * (minval // tick)
-    goodmax = tick * (maxval // tick +1)
+	if not isclose(maxval % tick,0.0):
+		goodmax = tick * (maxval // tick +1)
+	else:
+		goodmax = tick * (maxval // tick)
     return goodmin, goodmax, tick, suggested_minor_tick
     
 if __name__ == "__main__":

@@ -381,7 +381,7 @@ class SpectroApp(App):
         self.root.ids['wavelength_abs_btn'].disabled = False
         self.root.ids['wavelength_spectrum_btn'].disabled = False
         self.root.ids['connect_btn'].text = "D\u00e9connecter"
-        self.root.ids['infobox_lbl'].text = f"Connect\u00e9 \n{self.port}"
+        self.root.ids['infobox_lbl'].text = "Connect\u00e9 \n%s"%(self.port,)
         self.update_ports_list_event.cancel()
 
     def set_disconnected_ui_state(self):
@@ -395,7 +395,7 @@ class SpectroApp(App):
         self.root.ids['blank_spectrum_btn'].disabled = True
         self.root.ids['measure_spectrum_btn'].disabled = True
         self.root.ids['connect_btn'].text = "Connecter"
-        self.root.ids['infobox_lbl'].text = f"D\u00e9connect\u00e9"
+        self.root.ids['infobox_lbl'].text = "D\u00e9connect\u00e9"
         self.update_ports_list()
         self.update_ports_list_event = Clock.schedule_interval(lambda dt: self.update_ports_list(), 5.)
 
@@ -408,7 +408,7 @@ class SpectroApp(App):
         end = int(end)
         self.wl_min = start
         self.wl_max = end
-        self.root.ids['wavelength_spectrum_Lbl'].text = f"{start} - {end} nm"
+        self.root.ids['wavelength_spectrum_Lbl'].text = "%d - %d nm"%(start,end)
         self.root.ids['blank_spectrum_btn'].disabled = False
         self.root.ids['measure_spectrum_btn'].disabled = True
         self.data_widget.init(start, end)
@@ -451,7 +451,7 @@ class SpectroApp(App):
 
     def on_measure_spectrum_btn_press_ok(self, ans):
         wlStart, N = ans
-        self.current_popup.update("Spectre", f"Mesure du spectre ({N} points)", 0.)
+        self.current_popup.update("Spectre", "Mesure du spectre (%d points)"%(N,), 0.)
         if self.data_points is not None:
             self.data_widget.ids['graph_widget'].remove_plot(self.data_points)
         self.data_points = SmoothLinePlot()
@@ -530,7 +530,7 @@ class SpectroApp(App):
                              self.on_blank_abs_btn_press_error):
             self.current_popup = PopupOperation()
             self.current_popup.open()
-            self.current_popup.update("Absorbance", f"Mesure du z\u00e9ro \u00e0 {self.wl_abs} nm...")
+            self.current_popup.update("Absorbance", "Mesure du z\u00e9ro \u00e0 %d nm..."%(self.wl_abs,))
         else:
             self.show_message("Erreur.", "Spectrom\u00e8tre non connect\u00e9.")
 
@@ -578,7 +578,7 @@ class SpectroApp(App):
         val = ans[1]
         self.data_widget.ids[
             'abs_data_ti'].text += f'Valeur de l\'absorbance: {val}\n'
-        self.current_popup.update("Absorbance", f"Mesure de l'absorbance \u00e0 %d nm... OK" % (self.wl_abs,))
+        self.current_popup.update("Absorbance", "Mesure de l'absorbance \u00e0 %d nm... OK" % (self.wl_abs,))
         self.current_popup.close_after()
 
     def on_measure_abs_btn_press_ok_data_error(self):
@@ -589,17 +589,17 @@ class SpectroApp(App):
                              self.on_autotest_btn_press_error):
             self.current_popup = PopupOperation()
             self.current_popup.open()
-            self.current_popup.update("Autotest", f"Autotest en cours...")
+            self.current_popup.update("Autotest", "Autotest en cours...")
         else:
             self.show_message("Erreur.", "Spectrom\u00e8tre non connect\u00e9.")
 
     def on_autotest_btn_press_ok(self, ans):
-        if ans:
+        if ans[0]:
             self.current_popup.update("Autotest", "Autotest en cours... OK!")
             self.current_popup.auto_dismiss = True
         else:
             self.current_popup.dismiss()
-            self.show_message("Erreur.", "Erreur d'autotest : Mauvaise configuration de la machine")
+            self.show_message("Erreur.", "Erreur d'autotest : Mauvaise configuration de la machine (Code: %d"%(ans[1],))
 
     def on_autotest_btn_press_error(self):
         self.current_popup.dismiss()
@@ -610,7 +610,7 @@ class SpectroApp(App):
                              self.on_hardware_infos_btn_press_error):
             self.current_popup = PopupMessage()
             self.current_popup.open()
-            self.current_popup.set_message("Informations mat\u00e9riel", f"Spectrom\u00e8tre : ")
+            self.current_popup.set_message("Informations mat\u00e9riel", "Spectrom\u00e8tre : ")
         else:
             self.show_message("Erreur.", "Spectrom\u00e8tre non connect\u00e9.")
 
@@ -629,7 +629,7 @@ class SpectroApp(App):
 
     def on_hardware_infos_btn_press_ok_firmware_ok(self, ans):
         title, text = self.current_popup.get_message()
-        self.current_popup.set_message(title, text + f"\nversion logiciel : {ans}")
+        self.current_popup.set_message(title, text + "\nversion logiciel : %d"%(ans,))
 
     def on_hardware_infos_btn_press_ok_firmware_error(self):
         self.on_hardware_infos_btn_press_error()
