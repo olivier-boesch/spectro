@@ -37,10 +37,10 @@ def get_bounds_and_ticks(minval, maxval, nticks):
         suggested_minor_tick = 4
     # calculate good (rounded) min and max
     goodmin = tick * (minval // tick)
-	if not isclose(maxval % tick,0.0):
-		goodmax = tick * (maxval // tick +1)
-	else:
-		goodmax = tick * (maxval // tick)
+    if not isclose(maxval % tick,0.0):
+        goodmax = tick * (maxval // tick +1)
+    else:
+        goodmax = tick * (maxval // tick)
     return goodmin, goodmax, tick, suggested_minor_tick
     
 if __name__ == "__main__":
