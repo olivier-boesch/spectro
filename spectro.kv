@@ -3,8 +3,6 @@
 BoxLayout:
   id: mainwnd
   orientation: 'vertical'
-  #menu
-  # TODO : menu bar
   #Main space
   BoxLayout:
     id: mainlayout
@@ -201,8 +199,6 @@ BoxLayout:
       id: spectrum_export_spinner
       text: 'Exporter'
       values: ['Exporter en image png','Exporter les donn\u00e9es']
-      opacity: 0.0
-      disabled: True
       on_text: app.save_spectrum(self.text)
 
 <BoxAbs@BoxLayout>

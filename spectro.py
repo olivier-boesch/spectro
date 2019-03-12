@@ -14,7 +14,7 @@ os.environ["KIVY_NO_CONSOLELOG"] = "1"
 # kivy import
 from kivy.config import Config
 Config.set('kivy', 'desktop', 1)
-# Config.set('graphics', 'window_state', 'maximized')
+Config.set('graphics', 'window_state', 'maximized')
 # Config.set('graphics','fullscreen','auto')
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 import kivy
@@ -176,6 +176,7 @@ class PopupProgress(Popup):
 class BoxSpectrum(BoxLayout):
     """displays a box layout"""
     type = 'spectrum'
+    
 
     def init(self, wlmin, wlmax):
         self.ids['graph_widget'].xmin = wlmin
@@ -206,7 +207,7 @@ class SpectroApp(App):
 
     def send_command(self, cmd_func, clbck_ok, clbck_error):
         """sends a command to the spectrometer and schedule a verification function"""
-        check_freq = 50  # Hz - check frequency
+        check_freq = 60  # Hz - check frequency (max 60Hz -> once per frame)
         cmd_timeout = 120  # s - timeout to get a valid answer
         # proceed only if the spectrometer is connected. return false otherwise
         if self.spectro.connected:
@@ -310,6 +311,7 @@ class SpectroApp(App):
             self.root.ids['blank_spectrum_btn'].disabled = True
             self.root.ids['measure_spectrum_btn'].disabled = True
             self.root.ids['wavelength_spectrum_Lbl'].text = '--- - --- nm'
+            self.data_points = None
             
         else:
             self.data_widget = BoxSpectrum()
@@ -480,7 +482,7 @@ class SpectroApp(App):
         if i < N:
             self.get_spectrum_point()
         else:
-            #calcul des graduations
+            # autoscale of graph with usable ticks for wavelength and absorbance data
             ymin, ymax, major_tick, minor_tick = get_bounds_and_ticks(self.data_widget.ids['graph_widget'].ymin,self.data_widget.ids['graph_widget'].ymax,10)
             self.data_widget.ids['graph_widget'].ymin = ymin
             self.data_widget.ids['graph_widget'].ymax = ymax
@@ -493,6 +495,23 @@ class SpectroApp(App):
             self.data_widget.ids['graph_widget'].x_ticks_minor = minor_tick
             self.current_popup.update("Spectre", "Mesure du spectre (%d/%d points)" % (N, N), 100.0)
             self.current_popup.close_after()
+            
+    def save_spectrum(self, txt):
+        options = self.data_widget.ids['spectrum_export_spinner'].values
+        # export as png image
+        if txt == options[0]:
+            self.data_widget.ids['graph_widget'].export_to_png('screenshot.png')
+            self.show_message('Export du graphique comme image', 'Fichier sauvegard\u00e9 sous \'screenshot.png\'')
+        # export as csv data
+        elif txt == options[1] and self.data_points is not None:
+            data = self.data_points.points
+            f = open('data.csv','w')
+            f.write('# wavelength(nm); abs')
+            for it in data:
+                f.write(str('%d ; %f'%it).replace('.',',')) #change decimal point to comma to fit with LOo Calc
+            f.close()
+            self.show_message('Export du graphique comme donn\u00e9es csv', 'Fichier sauvegard\u00e9 sous \'data.csv\'')
+        options = self.data_widget.ids['spectrum_export_spinner'].text = 'Exporter'
 
     def on_wavelength_abs_btn_press(self):
         p = PopupWavelengthAbs()
@@ -577,7 +596,7 @@ class SpectroApp(App):
     def on_measure_abs_btn_press_ok_data_ok(self, ans):
         val = ans[1]
         self.data_widget.ids[
-            'abs_data_ti'].text += f'Valeur de l\'absorbance: {val}\n'
+            'abs_data_ti'].text += 'Valeur de l\'absorbance: %f\n'%(val,)
         self.current_popup.update("Absorbance", "Mesure de l'absorbance \u00e0 %d nm... OK" % (self.wl_abs,))
         self.current_popup.close_after()
 
