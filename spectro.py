@@ -8,16 +8,19 @@
 # #########################################################################
 
 __version__ = '0.9'
-#dont write on console (file log only)
+# dont write on console (file log only)
 import os
+
 os.environ["KIVY_NO_CONSOLELOG"] = "1"
 # kivy import
 from kivy.config import Config
+
 Config.set('kivy', 'desktop', 1)
 Config.set('graphics', 'window_state', 'maximized')
 # Config.set('graphics','fullscreen','auto')
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 import kivy
+
 kivy.require('1.10.1')
 from kivy.app import App
 from kivy.uix.popup import Popup
@@ -28,22 +31,23 @@ import s250Prim_async
 from serial.tools import list_ports
 from utilities import get_bounds_and_ticks
 
+
 # print_graph_theme = {'graph_area': {'label_options': {
-                                        # 'color': rgb('000000'),  # color of tick labels and titles
-                                        # 'bold': True},
-                                    # 'background_color': rgb('ffffff'),  # back ground color of canvas
-                                    # 'tick_color': rgb('000000'),  # ticks and grid
-                                    # 'border_color': rgb('000000')},  # border drawn around each graph
-                    # 'plot_color': rgb('000000')}
-                    
-                    
+# 'color': rgb('000000'),  # color of tick labels and titles
+# 'bold': True},
+# 'background_color': rgb('ffffff'),  # back ground color of canvas
+# 'tick_color': rgb('000000'),  # ticks and grid
+# 'border_color': rgb('000000')},  # border drawn around each graph
+# 'plot_color': rgb('000000')}
+
+
 # display_graph_theme = {'graph_area': {'label_options': {
-                                        # 'color': rgb('ffffff'),  # color of tick labels and titles
-                                        # 'bold': True},
-                                    # 'background_color': rgb('000000'),  # back ground color of canvas
-                                    # 'tick_color': rgb('ffffff'),  # ticks and grid
-                                    # 'border_color': rgb('ffffff')},  # border drawn around each graph
-                    # 'plot_color': rgb('ffffff')}
+# 'color': rgb('ffffff'),  # color of tick labels and titles
+# 'bold': True},
+# 'background_color': rgb('000000'),  # back ground color of canvas
+# 'tick_color': rgb('ffffff'),  # ticks and grid
+# 'border_color': rgb('ffffff')},  # border drawn around each graph
+# 'plot_color': rgb('ffffff')}
 
 
 class PopupWavelengthSpectrum(Popup):
@@ -176,7 +180,6 @@ class PopupProgress(Popup):
 class BoxSpectrum(BoxLayout):
     """displays a box layout"""
     type = 'spectrum'
-    
 
     def init(self, wlmin, wlmax):
         self.ids['graph_widget'].xmin = wlmin
@@ -218,7 +221,8 @@ class SpectroApp(App):
                 cmd_data = cmd_func()
                 # don't schedule if command need 0 bytes as answer
                 if cmd_data[1] != 0:
-                    self.event_spectro_cmd = Clock.schedule_interval(lambda dt: self.check_command_result(cmd_data, clbck_ok, clbck_error), 1. / check_freq)
+                    self.event_spectro_cmd = Clock.schedule_interval(
+                        lambda dt: self.check_command_result(cmd_data, clbck_ok, clbck_error), 1. / check_freq)
                 return True
             except:
                 # cancel check_command_result scheduling
@@ -302,8 +306,8 @@ class SpectroApp(App):
         p.open()
         p.close_after(close_timeout)
 
-    def load_display_spectrum(self,collapse):
-        #spectrum accordion collapsed -> remove graph
+    def load_display_spectrum(self, collapse):
+        # spectrum accordion collapsed -> remove graph
         if collapse:
             self.root.ids['mainlayout'].remove_widget(self.data_widget)
             del (self.data_widget)
@@ -312,14 +316,14 @@ class SpectroApp(App):
             self.root.ids['measure_spectrum_btn'].disabled = True
             self.root.ids['wavelength_spectrum_Lbl'].text = '--- - --- nm'
             self.data_points = None
-            
+
         else:
             self.data_widget = BoxSpectrum()
             self.root.ids['mainlayout'].add_widget(self.data_widget)
             self.wl_min = self.spectro.waveLengthLimits['start']
-            self.wl_max = self.spectro.waveLengthLimits['end']        
+            self.wl_max = self.spectro.waveLengthLimits['end']
 
-    def load_display_abs(self,collapse):
+    def load_display_abs(self, collapse):
         if collapse:
             self.root.ids['mainlayout'].remove_widget(self.data_widget)
             del (self.data_widget)
@@ -331,16 +335,6 @@ class SpectroApp(App):
             self.data_widget = BoxAbs()
             self.root.ids['mainlayout'].add_widget(self.data_widget)
             self.wl_abs = self.spectro.waveLengthLimits['start']
-            
-    def save_spectrum(self, txt):
-        # export as image
-        if txt == self.root.ids['spectrum_export_spinner'].values[0]:
-            pass
-        # export data only
-        elif txt == self.root.ids['spectrum_export_spinner'].values[1]:
-            pass
-        self.root.ids['spectrum_export_spinner'].text = 'Exporter'
-        
 
     def on_connect_btn_press(self):
         # if we are already connected then stop the spectro, disconnect serial port and reflact on ui
@@ -383,7 +377,7 @@ class SpectroApp(App):
         self.root.ids['wavelength_abs_btn'].disabled = False
         self.root.ids['wavelength_spectrum_btn'].disabled = False
         self.root.ids['connect_btn'].text = "D\u00e9connecter"
-        self.root.ids['infobox_lbl'].text = "Connect\u00e9 \n%s"%(self.port,)
+        self.root.ids['infobox_lbl'].text = "Connect\u00e9 \n%s" % (self.port,)
         self.update_ports_list_event.cancel()
 
     def set_disconnected_ui_state(self):
@@ -410,7 +404,7 @@ class SpectroApp(App):
         end = int(end)
         self.wl_min = start
         self.wl_max = end
-        self.root.ids['wavelength_spectrum_Lbl'].text = "%d - %d nm"%(start,end)
+        self.root.ids['wavelength_spectrum_Lbl'].text = "%d - %d nm" % (start, end)
         self.root.ids['blank_spectrum_btn'].disabled = False
         self.root.ids['measure_spectrum_btn'].disabled = True
         self.data_widget.init(start, end)
@@ -453,7 +447,7 @@ class SpectroApp(App):
 
     def on_measure_spectrum_btn_press_ok(self, ans):
         wlStart, N = ans
-        self.current_popup.update("Spectre", "Mesure du spectre (%d points)"%(N,), 0.)
+        self.current_popup.update("Spectre", "Mesure du spectre (%d points)" % (N,), 0.)
         if self.data_points is not None:
             self.data_widget.ids['graph_widget'].remove_plot(self.data_points)
         self.data_points = SmoothLinePlot()
@@ -477,25 +471,27 @@ class SpectroApp(App):
         self.data_points.points.append(data)
         self.current_popup.update("Spectre", "Mesure du spectre (%d/%d points)" % (i, N), float(i) / float(N) * 100.0)
         # raw min and max to keep data in the window
-        self.data_widget.ids['graph_widget'].ymax = max( self.data_widget.ids['graph_widget'].ymax, data[1])
-        self.data_widget.ids['graph_widget'].ymin = min( self.data_widget.ids['graph_widget'].ymin, data[1])
+        self.data_widget.ids['graph_widget'].ymax = max(self.data_widget.ids['graph_widget'].ymax, data[1])
+        self.data_widget.ids['graph_widget'].ymin = min(self.data_widget.ids['graph_widget'].ymin, data[1])
         if i < N:
             self.get_spectrum_point()
         else:
             # autoscale of graph with usable ticks for wavelength and absorbance data
-            ymin, ymax, major_tick, minor_tick = get_bounds_and_ticks(self.data_widget.ids['graph_widget'].ymin,self.data_widget.ids['graph_widget'].ymax,10)
+            ymin, ymax, major_tick, minor_tick = get_bounds_and_ticks(self.data_widget.ids['graph_widget'].ymin,
+                                                                      self.data_widget.ids['graph_widget'].ymax, 10)
             self.data_widget.ids['graph_widget'].ymin = ymin
             self.data_widget.ids['graph_widget'].ymax = ymax
             self.data_widget.ids['graph_widget'].y_ticks_major = major_tick
             self.data_widget.ids['graph_widget'].y_ticks_minor = minor_tick
-            xmin, xmax, major_tick, minor_tick = get_bounds_and_ticks(self.data_widget.ids['graph_widget'].xmin,self.data_widget.ids['graph_widget'].xmax,10)
+            xmin, xmax, major_tick, minor_tick = get_bounds_and_ticks(self.data_widget.ids['graph_widget'].xmin,
+                                                                      self.data_widget.ids['graph_widget'].xmax, 10)
             self.data_widget.ids['graph_widget'].xmin = xmin
             self.data_widget.ids['graph_widget'].xmax = xmax
             self.data_widget.ids['graph_widget'].x_ticks_major = major_tick
             self.data_widget.ids['graph_widget'].x_ticks_minor = minor_tick
             self.current_popup.update("Spectre", "Mesure du spectre (%d/%d points)" % (N, N), 100.0)
             self.current_popup.close_after()
-            
+
     def save_spectrum(self, txt):
         options = self.data_widget.ids['spectrum_export_spinner'].values
         # export as png image
@@ -505,10 +501,10 @@ class SpectroApp(App):
         # export as csv data
         elif txt == options[1] and self.data_points is not None:
             data = self.data_points.points
-            f = open('data.csv','w')
+            f = open('data.csv', 'w')
             f.write('# wavelength(nm); abs')
             for it in data:
-                f.write(str('%d ; %f'%it).replace('.',',')) #change decimal point to comma to fit with LOo Calc
+                f.write(str('%d ; %f' % it).replace('.', ','))  # change decimal point to comma to fit with LOo Calc
             f.close()
             self.show_message('Export du graphique comme donn\u00e9es csv', 'Fichier sauvegard\u00e9 sous \'data.csv\'')
         options = self.data_widget.ids['spectrum_export_spinner'].text = 'Exporter'
@@ -549,7 +545,7 @@ class SpectroApp(App):
                              self.on_blank_abs_btn_press_error):
             self.current_popup = PopupOperation()
             self.current_popup.open()
-            self.current_popup.update("Absorbance", "Mesure du z\u00e9ro \u00e0 %d nm..."%(self.wl_abs,))
+            self.current_popup.update("Absorbance", "Mesure du z\u00e9ro \u00e0 %d nm..." % (self.wl_abs,))
         else:
             self.show_message("Erreur.", "Spectrom\u00e8tre non connect\u00e9.")
 
@@ -574,7 +570,8 @@ class SpectroApp(App):
         self.on_blank_abs_btn_press_error()
 
     def on_measure_abs_btn_press(self):
-        if self.send_command(lambda: self.spectro.get_abs(), self.on_measure_abs_btn_press_ok,self.on_measure_abs_btn_press_error):
+        if self.send_command(lambda: self.spectro.get_abs(), self.on_measure_abs_btn_press_ok,
+                             self.on_measure_abs_btn_press_error):
             self.current_popup = PopupOperation()
             self.current_popup.open()
             self.current_popup.update("Absorbance", "Mesure de l'absorbance \u00e0 %d nm" % (self.wl_abs,))
@@ -596,7 +593,7 @@ class SpectroApp(App):
     def on_measure_abs_btn_press_ok_data_ok(self, ans):
         val = ans[1]
         self.data_widget.ids[
-            'abs_data_ti'].text += 'Valeur de l\'absorbance: %f\n'%(val,)
+            'abs_data_ti'].text += 'Valeur de l\'absorbance: %f\n' % (val,)
         self.current_popup.update("Absorbance", "Mesure de l'absorbance \u00e0 %d nm... OK" % (self.wl_abs,))
         self.current_popup.close_after()
 
@@ -618,7 +615,8 @@ class SpectroApp(App):
             self.current_popup.auto_dismiss = True
         else:
             self.current_popup.dismiss()
-            self.show_message("Erreur.", "Erreur d'autotest : Mauvaise configuration de la machine (Code: %d"%(ans[1],))
+            self.show_message("Erreur.",
+                              "Erreur d'autotest : Mauvaise configuration de la machine (Code: %d" % (ans[1],))
 
     def on_autotest_btn_press_error(self):
         self.current_popup.dismiss()
@@ -648,7 +646,7 @@ class SpectroApp(App):
 
     def on_hardware_infos_btn_press_ok_firmware_ok(self, ans):
         title, text = self.current_popup.get_message()
-        self.current_popup.set_message(title, text + "\nversion logiciel : %d"%(ans,))
+        self.current_popup.set_message(title, text + "\nversion logiciel : %d" % (ans,))
 
     def on_hardware_infos_btn_press_ok_firmware_error(self):
         self.on_hardware_infos_btn_press_error()

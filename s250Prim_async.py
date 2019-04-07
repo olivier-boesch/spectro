@@ -74,7 +74,7 @@ class S250Prim:
             s = struct.unpack(">xB", data)[0]
             return s
         elif cmd_sent == Cmd_Autotest:
-            return data == Ans_Autotest_Ok,int.from_bytes(data,'big')
+            return data == Ans_Autotest_Ok, int.from_bytes(data, 'big')
         elif cmd_sent == Cmd_SetWavelength:
             return data == Ans_SetWavelength_Ok
         elif cmd_sent == Cmd_GetZeroAbs:
@@ -202,5 +202,6 @@ class S250Prim:
         self.send(Cmd_Prefix + Cmd_GetSpectrum)
         return Cmd_GetSpectrum, 7
 
-    def get_spectrum_data(self):
+    @staticmethod
+    def get_spectrum_data():
         return Cmd_GetSpectrumData, 2
