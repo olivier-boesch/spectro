@@ -7,20 +7,20 @@
 #   Licence: MIT
 # #########################################################################
 
+# ------- software version
 __version__ = '0.9'
-# dont write on console (file log only)
+# ------- dont write on console (file log only)
 import os
-
 os.environ["KIVY_NO_CONSOLELOG"] = "1"
-# kivy import
-from kivy.config import Config
 
+# -------- kivy config : desktop app, maximized window, mouse and not multitouch
+from kivy.config import Config
 Config.set('kivy', 'desktop', 1)
 Config.set('graphics', 'window_state', 'maximized')
-# Config.set('graphics','fullscreen','auto')
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
-import kivy
 
+# ------- kivy import
+import kivy
 kivy.require('1.10.1')
 from kivy.app import App
 from kivy.uix.popup import Popup
@@ -31,7 +31,7 @@ import s250Prim_async
 from serial.tools import list_ports
 from utilities import get_bounds_and_ticks
 
-
+# ------- graph theme for display and printing
 # print_graph_theme = {'graph_area': {'label_options': {
 # 'color': rgb('000000'),  # color of tick labels and titles
 # 'bold': True},
@@ -39,7 +39,6 @@ from utilities import get_bounds_and_ticks
 # 'tick_color': rgb('000000'),  # ticks and grid
 # 'border_color': rgb('000000')},  # border drawn around each graph
 # 'plot_color': rgb('000000')}
-
 
 # display_graph_theme = {'graph_area': {'label_options': {
 # 'color': rgb('ffffff'),  # color of tick labels and titles
@@ -50,6 +49,7 @@ from utilities import get_bounds_and_ticks
 # 'plot_color': rgb('ffffff')}
 
 
+# ------ Popup window for wavelength bounds in spectrum part
 class PopupWavelengthSpectrum(Popup):
     """wavelengths selection for spectrum"""
 
@@ -92,6 +92,7 @@ class PopupWavelengthSpectrum(Popup):
                 self.ids['wlstart_sldr'].value = self.ids['wlend_sldr'].value
 
 
+# ------ Popup window for wavelength selection in absorbance part
 class PopupWavelengthAbs(Popup):
     """wavelength selection for absorbance"""
 
@@ -116,6 +117,7 @@ class PopupWavelengthAbs(Popup):
         self.dismiss()
 
 
+# ------ About... Popup window
 class AboutPopup(Popup):
     """About spectro popup"""
 
@@ -124,6 +126,7 @@ class AboutPopup(Popup):
         self.ids['about_lbl'].text = 'version : ' + __version__ + '\n' + self.ids['about_lbl'].text
 
 
+# ------- Popup for message notification
 class PopupMessage(Popup):
     """PopupMessage : display a message box"""
 
@@ -144,6 +147,7 @@ class PopupMessage(Popup):
         Clock.schedule_once(lambda t: self.dismiss(), dt)
 
 
+# ------- Popup for operation running (no dismiss)
 class PopupOperation(Popup):
     """display a popup while an operation occures"""
 
@@ -160,6 +164,7 @@ class PopupOperation(Popup):
         Clock.schedule_once(lambda t: self.dismiss(), dt)
 
 
+# ------- Popup for operation running (no dismiss) with a progress bar
 class PopupProgress(Popup):
     """like operation popup but with a progress bar"""
 
@@ -177,6 +182,7 @@ class PopupProgress(Popup):
         Clock.schedule_once(lambda t: self.dismiss(), dt)
 
 
+# ------- Application part for spectrum (graph, export buttons)
 class BoxSpectrum(BoxLayout):
     """displays a box layout"""
     type = 'spectrum'
@@ -186,7 +192,7 @@ class BoxSpectrum(BoxLayout):
         self.ids['graph_widget'].xmax = wlmax
         self.ids['boxspectrum_title_lbl'].text = 'Mesure de spectre de %d nm \u00e0 %d nm' % (wlmin, wlmax)
 
-
+# ------- Application part for absorbance (graph, export buttons)
 class BoxAbs(BoxLayout):
     type = 'abs'
 
@@ -194,6 +200,7 @@ class BoxAbs(BoxLayout):
         self.ids['boxabs_title_lbl'].text = 'Mesure d\'absorbance \u00e0 %d nm' % (wl,)
 
 
+# ------- Main App Class
 class SpectroApp(App):
     port = None
     spectro = s250Prim_async.S250Prim()
@@ -652,15 +659,19 @@ class SpectroApp(App):
         self.on_hardware_infos_btn_press_error()
 
     def on_about_btn_press(self):
+        """on_about_btn_press : what to do when 'a propos...' button is pressed"""
         AboutPopup().open()
 
     def on_quit_btn_press(self):
+        """on_quit_btn_press : what to do when 'quit' button is pressed"""
         self.stop()
 
     def on_stop(self):
+        """on_stop : things to do when about to stop app"""
         if self.send_command(self.spectro.stop_device, None, None):
             self.spectro.disconnect()
 
 
+# ------- start App
 sapp = SpectroApp()
 sapp.run()
