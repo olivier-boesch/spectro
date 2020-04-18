@@ -12,3 +12,4 @@ src/graph/__pycache__/__init__.cpython-36.pyc
 src/graph/__pycache__/__init__.cpython-36.pyc
 src/graph/__pycache__/__init__.cpython-37.pyc
 *.pyc
+/build_armv8/.buildozer/

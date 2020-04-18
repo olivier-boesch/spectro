@@ -8,7 +8,13 @@
 
 # Backend Code ####################################
 import struct
-import serial
+from kivy.utils import platform
+
+if platform in ['windows', 'linux']:
+    import serial
+elif platform == 'android':
+    from usb4a import usb
+    from usbserial4a import serial4a
 
 __author__ = "Olivier Boesch"
 __version__ = "0.5 - 02/2019"
@@ -41,8 +47,8 @@ Secoman_Models = {b'T\x00': 'S250 I+/E+', b'T\x01': 'S250 T+', b'P\x02': 'Prim A
 
 class S250Prim:
     waveLengthLimits = {'start': 330, 'end': 900, 'step': 3, 'speed': [1, 2, 3, 4, 5, 6, 7, 8]}
-    serialComParameters = {'baudrate': 4800, 'bytesize': serial.EIGHTBITS, 'parity': serial.PARITY_NONE,
-                           'stopbits': serial.STOPBITS_ONE}
+    serialComParameters = {'baudrate': 4800, 'bytesize': 8, 'parity': 'N',
+                           'stopbits': 1}
     device_capabilities = {'serialcomparameters': serialComParameters, 'device': waveLengthLimits}
     connected = False
     zero_data = 0.
@@ -110,12 +116,30 @@ class S250Prim:
 
     def connect(self, port):
         try:
-            self.conn = serial.Serial(port, baudrate=self.serialComParameters['baudrate'],
-                                      parity=self.serialComParameters['parity'],
-                                      stopbits=self.serialComParameters['stopbits'])
+            if platform in ['windows', 'linux']:
+                self.conn = serial.Serial(port, baudrate=self.serialComParameters['baudrate'],
+                                          parity=self.serialComParameters['parity'],
+                                          stopbits=self.serialComParameters['stopbits'])
+            elif platform == 'android':
+                device = usb.get_usb_device(port)
+                if not device:
+                    raise SerialException(
+                        "No device {}".format(port)
+                    )
+                if not usb.has_usb_permission(device):
+                    usb.request_usb_permission(device)
+                    return False
+                self.conn = serial4a.get_serial_port(
+                    port,
+                    self.serialComParameters['baudrate'],
+                    8,
+                    self.serialComParameters['parity'],
+                    self.serialComParameters['stopbits'],
+                    timeout=1
+                )
             self.connected = True
             return True
-        except:
+        except SerialException:
             self.connected = False
             return False
 

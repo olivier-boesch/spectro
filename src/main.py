@@ -7,29 +7,40 @@
 #   Licence: MIT
 # #########################################################################
 
+from kivy.utils import platform
+
 # ------- software version
 __version__ = '0.9'
-# ------- dont write on console (file log only)
-import os
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
-# -------- kivy config : desktop app, maximized window, mouse and not multitouch
-from kivy.config import Config
-Config.set('kivy', 'desktop', 1)
-Config.set('graphics', 'window_state', 'maximized')
-Config.set('input', 'mouse', 'mouse,disable_multitouch')
+if platform in ['windows', 'linux']:
+    # -------- kivy config : desktop app, maximized window, mouse and not multitouch
+    from kivy.config import Config
+    Config.set('kivy', 'desktop', 1)
+    Config.set('graphics', 'window_state', 'maximized')
+    Config.set('input', 'mouse', 'mouse,disable_multitouch')
 
 # ------- kivy import
-import kivy
-kivy.require('1.10.1')
 from kivy.app import App
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
-from src.graph import SmoothLinePlot
-from src import s250Prim_async
-from serial.tools import list_ports
-from src.utilities import get_bounds_and_ticks
+from graph import SmoothLinePlot
+import s250Prim_async
+if platform in ['windows', 'linux']:
+    from serial.tools import list_ports
+
+    def get_serial_ports_list():
+        ports = list_ports.comports()
+        return [item.device for item in ports]
+
+elif platform == 'android':
+    from usb4a import usb
+
+    def get_serial_ports_list():
+        usb_device_list = usb.get_usb_device_list()
+        return [device.getDeviceName() for device in usb_device_list]
+
+from utilities import get_bounds_and_ticks
 
 # ------- graph theme for display and printing
 # print_graph_theme = {'graph_area': {'label_options': {
@@ -290,10 +301,8 @@ class SpectroApp(App):
 
     def update_ports_list(self):
         """get available serial ports and set ports_list spinner values"""
-        # get an iterator with available serial ports
-        comportslist = list_ports.comports()
-        # make a tuple and set spinner values
-        self.root.ids['ports_list'].values = tuple([item.device for item in comportslist])
+        # get ports on the system, make a tuple and set spinner values
+        self.root.ids['ports_list'].values = tuple(get_serial_ports_list())
         # if current value is not in list then go back to default
         if self.root.ids['ports_list'].text not in self.root.ids['ports_list'].values:
             self.root.ids['ports_list'].text = 'Port S\u00e9rie'
