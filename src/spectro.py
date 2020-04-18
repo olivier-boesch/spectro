@@ -26,10 +26,10 @@ from kivy.app import App
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
-from graph import SmoothLinePlot
-import s250Prim_async
+from src.graph import SmoothLinePlot
+from src import s250Prim_async
 from serial.tools import list_ports
-from utilities import get_bounds_and_ticks
+from src.utilities import get_bounds_and_ticks
 
 # ------- graph theme for display and printing
 # print_graph_theme = {'graph_area': {'label_options': {
