@@ -24,6 +24,7 @@ from kivy.app import App
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.clock import Clock
+from kivy.factory import Factory
 from graph import SmoothLinePlot
 import s250Prim_async
 if platform in ['windows', 'linux']:
@@ -126,15 +127,6 @@ class PopupWavelengthAbs(Popup):
     def on_cancel(self):
         """if user invalidates, just close popup"""
         self.dismiss()
-
-
-# ------ About... Popup window
-class AboutPopup(Popup):
-    """About spectro popup"""
-
-    def when_opened(self):
-        """when opened, get version number and add it to text"""
-        self.ids['about_lbl'].text = 'version : ' + __version__ + '\n' + self.ids['about_lbl'].text
 
 
 # ------- Popup for message notification
@@ -669,7 +661,7 @@ class SpectroApp(App):
 
     def on_about_btn_press(self):
         """on_about_btn_press : what to do when 'a propos...' button is pressed"""
-        AboutPopup().open()
+        Factory.AboutPopup().open()
 
     def on_quit_btn_press(self):
         """on_quit_btn_press : what to do when 'quit' button is pressed"""

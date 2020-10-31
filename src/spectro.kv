@@ -1,5 +1,6 @@
 #:import Led led.Led
 #:import Graph graph.Graph
+#:import __version__ main.__version__
 BoxLayout:
   id: mainwnd
   orientation: 'vertical'
@@ -320,11 +321,14 @@ BoxLayout:
   size_hint: None,None
   size: dp(400), dp(200)
   auto_dismiss: True
-  on_open: root.when_opened()
   title: 'Spectro : Commande de spectrom\u00e8tre SECOMAM S250 et Prim'
   Label:
     id: about_lbl
-    text: 'Olivier Boesch \u00a9 2019\nutilise python et kivy,\nainsi que pyserial et kivy.garden.graph'
+    markup: True
+    text: 'v.' + __version__ + '\nOlivier Boesch \u00a9 2019\n[ref=gh]--link to github repo--[/ref]'
+    on_ref_press:
+      import webbrowser
+      webbrowser.open("https://www.github.com/olivier-boesch/spectro")
     
 # <SaveDialog>:
 #   text_input: text_input
